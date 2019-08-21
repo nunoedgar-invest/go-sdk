@@ -10,10 +10,10 @@ type HashTimerLockTransferResult struct {
 	tx.TxCommitResult
 }
 
-func (c *client) HashTimerLockTransfer(recipient types.AccAddress, recipientOtherChain []byte, randomNumberHash []byte, timestamp int64,
+func (c *client) HashTimerLockedTransfer(recipient types.AccAddress, recipientOtherChain []byte, randomNumberHash []byte, timestamp int64,
 	outAmount types.Coin, expectedIncome string, heightSpan int64, crossChain bool, sync bool, options ...Option) (*HashTimerLockTransferResult, error) {
 	fromAddr := c.keyManager.GetAddr()
-	hashTimerLockTransferMsg := msg.NewHashTimerLockTransferMsg(
+	hashTimerLockTransferMsg := msg.NewHashTimerLockedTransferMsg(
 		fromAddr,
 		recipient,
 		recipientOtherChain,
@@ -39,10 +39,10 @@ type DepositHashTimerLockResult struct {
 	tx.TxCommitResult
 }
 
-func (c *client) DepositHashTimerLock(recipient types.AccAddress, randomNumberHash []byte, outAmount types.Coin,
+func (c *client) DepositHashTimerLockedTransfer(recipient types.AccAddress, randomNumberHash []byte, outAmount types.Coin,
 	sync bool, options ...Option) (*DepositHashTimerLockResult, error) {
 	fromAddr := c.keyManager.GetAddr()
-	hashTimerLockTransferMsg := msg.NewDepositHashTimerLockMsg(
+	hashTimerLockTransferMsg := msg.NewDepositHashTimerLockedTransferMsg(
 		fromAddr,
 		recipient,
 		outAmount,
@@ -63,9 +63,9 @@ type ClaimHashTimerLockResult struct {
 	tx.TxCommitResult
 }
 
-func (c *client) ClaimHashTimerLock(randomNumberHash []byte, randomNumber []byte, sync bool, options ...Option) (*ClaimHashTimerLockResult, error) {
+func (c *client) ClaimHashTimerLockedTransfer(randomNumberHash []byte, randomNumber []byte, sync bool, options ...Option) (*ClaimHashTimerLockResult, error) {
 	fromAddr := c.keyManager.GetAddr()
-	claimHashTimerLockMsg := msg.NewClaimHashTimerLockMsg(
+	claimHashTimerLockMsg := msg.NewClaimHashTimerLockedTransferMsg(
 		fromAddr,
 		randomNumberHash,
 		randomNumber,
@@ -85,9 +85,9 @@ type RefundHashTimerLockResult struct {
 	tx.TxCommitResult
 }
 
-func (c *client) RefundHashTimerLock(randomNumberHash []byte, sync bool, options ...Option) (*RefundHashTimerLockResult, error) {
+func (c *client) RefundHashTimerLockedTransfer(randomNumberHash []byte, sync bool, options ...Option) (*RefundHashTimerLockResult, error) {
 	fromAddr := c.keyManager.GetAddr()
-	refundHashTimerLockMsg := msg.NewRefundLockedAssetMsg(
+	refundHashTimerLockMsg := msg.NewRefundHashTimerLockedTransferMsg(
 		fromAddr,
 		randomNumberHash,
 	)

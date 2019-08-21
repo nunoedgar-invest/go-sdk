@@ -33,7 +33,7 @@ var (
 	AtomicSwapCoinsAccAddr = types.AccAddress(crypto.AddressHash([]byte("BinanceChainAtomicSwapCoins")))
 )
 
-type HashTimerLockTransferMsg struct {
+type HashTimerLockedTransferMsg struct {
 	From                types.AccAddress `json:"from"`
 	To                  types.AccAddress `json:"to"`
 	RecipientOtherChain types.HexData    `json:"recipient_other_chain"`
@@ -45,9 +45,9 @@ type HashTimerLockTransferMsg struct {
 	CrossChain          bool             `json:"cross_chain"`
 }
 
-func NewHashTimerLockTransferMsg(from, to types.AccAddress, recipientOtherChain []byte, randomNumberHash []byte, timestamp int64,
-	outAmount types.Coin, expectedIncome string, heightSpan int64, crossChain bool) HashTimerLockTransferMsg {
-	return HashTimerLockTransferMsg{
+func NewHashTimerLockedTransferMsg(from, to types.AccAddress, recipientOtherChain []byte, randomNumberHash []byte, timestamp int64,
+	outAmount types.Coin, expectedIncome string, heightSpan int64, crossChain bool) HashTimerLockedTransferMsg {
+	return HashTimerLockedTransferMsg{
 		From:                from,
 		To:                  to,
 		RecipientOtherChain: recipientOtherChain,
@@ -60,20 +60,20 @@ func NewHashTimerLockTransferMsg(from, to types.AccAddress, recipientOtherChain 
 	}
 }
 
-func (msg HashTimerLockTransferMsg) Route() string { return AtomicSwapRoute }
-func (msg HashTimerLockTransferMsg) Type() string  { return HTLT }
-func (msg HashTimerLockTransferMsg) String() string {
+func (msg HashTimerLockedTransferMsg) Route() string { return AtomicSwapRoute }
+func (msg HashTimerLockedTransferMsg) Type() string  { return HTLT }
+func (msg HashTimerLockedTransferMsg) String() string {
 	return fmt.Sprintf("HTLT{%v#%v#%v#%v#%v#%v#%v#%v#%v}", msg.From, msg.To, msg.RecipientOtherChain, msg.RandomNumberHash,
 		msg.Timestamp, msg.OutAmount, msg.ExpectedIncome, msg.HeightSpan, msg.CrossChain)
 }
-func (msg HashTimerLockTransferMsg) GetInvolvedAddresses() []types.AccAddress {
+func (msg HashTimerLockedTransferMsg) GetInvolvedAddresses() []types.AccAddress {
 	return append(msg.GetSigners(), AtomicSwapCoinsAccAddr)
 }
-func (msg HashTimerLockTransferMsg) GetSigners() []types.AccAddress {
+func (msg HashTimerLockedTransferMsg) GetSigners() []types.AccAddress {
 	return []types.AccAddress{msg.From}
 }
 
-func (msg HashTimerLockTransferMsg) ValidateBasic() error {
+func (msg HashTimerLockedTransferMsg) ValidateBasic() error {
 	if len(msg.From) != types.AddrLen {
 		return fmt.Errorf("Expected address length is %d, actual length is %d", types.AddrLen, len(msg.From))
 	}
@@ -104,7 +104,7 @@ func (msg HashTimerLockTransferMsg) ValidateBasic() error {
 	return nil
 }
 
-func (msg HashTimerLockTransferMsg) GetSignBytes() []byte {
+func (msg HashTimerLockedTransferMsg) GetSignBytes() []byte {
 	b, err := json.Marshal(msg)
 	if err != nil {
 		panic(err)
@@ -112,15 +112,15 @@ func (msg HashTimerLockTransferMsg) GetSignBytes() []byte {
 	return b
 }
 
-type DepositHashTimerLockMsg struct {
+type DepositHashTimerLockedTransferMsg struct {
 	From             types.AccAddress `json:"from"`
 	To               types.AccAddress `json:"to"`
 	OutAmount        types.Coin       `json:"out_amount"`
 	RandomNumberHash types.HexData    `json:"random_number_hash"`
 }
 
-func NewDepositHashTimerLockMsg(from, to types.AccAddress, outAmount types.Coin, randomNumberHash []byte) DepositHashTimerLockMsg {
-	return DepositHashTimerLockMsg{
+func NewDepositHashTimerLockedTransferMsg(from, to types.AccAddress, outAmount types.Coin, randomNumberHash []byte) DepositHashTimerLockedTransferMsg {
+	return DepositHashTimerLockedTransferMsg{
 		From:             from,
 		To:               to,
 		OutAmount:        outAmount,
@@ -128,19 +128,19 @@ func NewDepositHashTimerLockMsg(from, to types.AccAddress, outAmount types.Coin,
 	}
 }
 
-func (msg DepositHashTimerLockMsg) Route() string { return AtomicSwapRoute }
-func (msg DepositHashTimerLockMsg) Type() string  { return DepositHTLT }
-func (msg DepositHashTimerLockMsg) String() string {
+func (msg DepositHashTimerLockedTransferMsg) Route() string { return AtomicSwapRoute }
+func (msg DepositHashTimerLockedTransferMsg) Type() string  { return DepositHTLT }
+func (msg DepositHashTimerLockedTransferMsg) String() string {
 	return fmt.Sprintf("depositHTLT{%v#%v#%v#%v}", msg.From, msg.To, msg.OutAmount, msg.RandomNumberHash)
 }
-func (msg DepositHashTimerLockMsg) GetInvolvedAddresses() []types.AccAddress {
+func (msg DepositHashTimerLockedTransferMsg) GetInvolvedAddresses() []types.AccAddress {
 	return append(msg.GetSigners(), AtomicSwapCoinsAccAddr)
 }
-func (msg DepositHashTimerLockMsg) GetSigners() []types.AccAddress {
+func (msg DepositHashTimerLockedTransferMsg) GetSigners() []types.AccAddress {
 	return []types.AccAddress{msg.From}
 }
 
-func (msg DepositHashTimerLockMsg) ValidateBasic() error {
+func (msg DepositHashTimerLockedTransferMsg) ValidateBasic() error {
 	if len(msg.From) != types.AddrLen {
 		return fmt.Errorf("Expected address length is %d, actual length is %d", types.AddrLen, len(msg.From))
 	}
@@ -156,7 +156,7 @@ func (msg DepositHashTimerLockMsg) ValidateBasic() error {
 	return nil
 }
 
-func (msg DepositHashTimerLockMsg) GetSignBytes() []byte {
+func (msg DepositHashTimerLockedTransferMsg) GetSignBytes() []byte {
 	b, err := json.Marshal(msg)
 	if err != nil {
 		panic(err)
@@ -164,31 +164,31 @@ func (msg DepositHashTimerLockMsg) GetSignBytes() []byte {
 	return b
 }
 
-type ClaimHashTimerLockMsg struct {
+type ClaimHashTimerLockedTransferMsg struct {
 	From             types.AccAddress `json:"from"`
 	RandomNumberHash types.HexData    `json:"random_number_hash"`
 	RandomNumber     types.HexData    `json:"random_number"`
 }
 
-func NewClaimHashTimerLockMsg(from types.AccAddress, randomNumberHash, randomNumber []byte) ClaimHashTimerLockMsg {
-	return ClaimHashTimerLockMsg{
+func NewClaimHashTimerLockedTransferMsg(from types.AccAddress, randomNumberHash, randomNumber []byte) ClaimHashTimerLockedTransferMsg {
+	return ClaimHashTimerLockedTransferMsg{
 		From:             from,
 		RandomNumberHash: randomNumberHash,
 		RandomNumber:     randomNumber,
 	}
 }
 
-func (msg ClaimHashTimerLockMsg) Route() string { return AtomicSwapRoute }
-func (msg ClaimHashTimerLockMsg) Type() string  { return ClaimHTLT }
-func (msg ClaimHashTimerLockMsg) String() string {
+func (msg ClaimHashTimerLockedTransferMsg) Route() string { return AtomicSwapRoute }
+func (msg ClaimHashTimerLockedTransferMsg) Type() string  { return ClaimHTLT }
+func (msg ClaimHashTimerLockedTransferMsg) String() string {
 	return fmt.Sprintf("claimHashTimeLock{%v#%v#%v}", msg.From, msg.RandomNumberHash, msg.RandomNumber)
 }
-func (msg ClaimHashTimerLockMsg) GetInvolvedAddresses() []types.AccAddress {
+func (msg ClaimHashTimerLockedTransferMsg) GetInvolvedAddresses() []types.AccAddress {
 	return append(msg.GetSigners(), AtomicSwapCoinsAccAddr)
 }
-func (msg ClaimHashTimerLockMsg) GetSigners() []types.AccAddress { return []types.AccAddress{msg.From} }
+func (msg ClaimHashTimerLockedTransferMsg) GetSigners() []types.AccAddress { return []types.AccAddress{msg.From} }
 
-func (msg ClaimHashTimerLockMsg) ValidateBasic() error {
+func (msg ClaimHashTimerLockedTransferMsg) ValidateBasic() error {
 	if len(msg.From) != types.AddrLen {
 		return fmt.Errorf("expected address length is %d, actual length is %d", types.AddrLen, len(msg.From))
 	}
@@ -201,7 +201,7 @@ func (msg ClaimHashTimerLockMsg) ValidateBasic() error {
 	return nil
 }
 
-func (msg ClaimHashTimerLockMsg) GetSignBytes() []byte {
+func (msg ClaimHashTimerLockedTransferMsg) GetSignBytes() []byte {
 	b, err := json.Marshal(msg)
 	if err != nil {
 		panic(err)
@@ -209,29 +209,29 @@ func (msg ClaimHashTimerLockMsg) GetSignBytes() []byte {
 	return b
 }
 
-type RefundHashTimerLockMsg struct {
+type RefundHashTimerLockedTransferMsg struct {
 	From             types.AccAddress `json:"from"`
 	RandomNumberHash types.HexData    `json:"random_number_hash"`
 }
 
-func NewRefundLockedAssetMsg(from types.AccAddress, randomNumberHash []byte) RefundHashTimerLockMsg {
-	return RefundHashTimerLockMsg{
+func NewRefundHashTimerLockedTransferMsg(from types.AccAddress, randomNumberHash []byte) RefundHashTimerLockedTransferMsg {
+	return RefundHashTimerLockedTransferMsg{
 		From:             from,
 		RandomNumberHash: randomNumberHash,
 	}
 }
 
-func (msg RefundHashTimerLockMsg) Route() string { return AtomicSwapRoute }
-func (msg RefundHashTimerLockMsg) Type() string  { return RefundHTLT }
-func (msg RefundHashTimerLockMsg) String() string {
+func (msg RefundHashTimerLockedTransferMsg) Route() string { return AtomicSwapRoute }
+func (msg RefundHashTimerLockedTransferMsg) Type() string  { return RefundHTLT }
+func (msg RefundHashTimerLockedTransferMsg) String() string {
 	return fmt.Sprintf("refundLockedAsset{%v#%v}", msg.From, msg.RandomNumberHash)
 }
-func (msg RefundHashTimerLockMsg) GetInvolvedAddresses() []types.AccAddress {
+func (msg RefundHashTimerLockedTransferMsg) GetInvolvedAddresses() []types.AccAddress {
 	return append(msg.GetSigners(), AtomicSwapCoinsAccAddr)
 }
-func (msg RefundHashTimerLockMsg) GetSigners() []types.AccAddress { return []types.AccAddress{msg.From} }
+func (msg RefundHashTimerLockedTransferMsg) GetSigners() []types.AccAddress { return []types.AccAddress{msg.From} }
 
-func (msg RefundHashTimerLockMsg) ValidateBasic() error {
+func (msg RefundHashTimerLockedTransferMsg) ValidateBasic() error {
 	if len(msg.From) != types.AddrLen {
 		return fmt.Errorf("expected address length is %d, actual length is %d", types.AddrLen, len(msg.From))
 	}
@@ -241,7 +241,7 @@ func (msg RefundHashTimerLockMsg) ValidateBasic() error {
 	return nil
 }
 
-func (msg RefundHashTimerLockMsg) GetSignBytes() []byte {
+func (msg RefundHashTimerLockedTransferMsg) GetSignBytes() []byte {
 	b, err := json.Marshal(msg)
 	if err != nil {
 		panic(err)
