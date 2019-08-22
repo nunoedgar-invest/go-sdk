@@ -35,8 +35,8 @@ type DexClient interface {
 	GetTimelocks(address string) ([]types.TimeLockRecord, error)
 	GetTimelock(address string, recordID int64) (types.TimeLockRecord, error)
 	GetSwapByHash(randomNumberHash types.HexData) (types.AtomicSwap, error)
-	GetSwapByCreator(creatorAddr string, swapStatus string, offset int64, limit int64) ([]types.AtomicSwap, error)
-	GetSwapByRecipient(recipientAddr string, swapStatus string, offset int64, limit int64) ([]types.AtomicSwap, error)
+	GetSwapByCreator(creatorAddr string, offset int64, limit int64) ([]types.HexData, error)
+	GetSwapByRecipient(recipientAddr string, offset int64, limit int64) ([]types.HexData, error)
 }
 
 func (c *HTTP) TxInfoSearch(query string, prove bool, page, perPage int) ([]tx.Info, error) {
@@ -378,37 +378,34 @@ func (c *HTTP) existsCC(symbol string) bool {
 }
 
 func (c *HTTP) GetSwapByHash(randomNumberHash types.HexData) (types.AtomicSwap, error) {
-	hashKey := []byte{0x01}
-	hashKey = append(hashKey, randomNumberHash...)
-
-	res, err := c.QueryStore(hashKey, AtomicSwapStoreName)
+	params := types.QuerySwapByHashParams{
+		RandomNumberHash: randomNumberHash,
+	}
+	bz, err := c.cdc.MarshalJSON(params)
 	if err != nil {
 		return types.AtomicSwap{}, err
 	}
 
-	if res == nil {
-		return types.AtomicSwap{}, fmt.Errorf("no matched swap record")
-	}
-
-	var atomicSwap types.AtomicSwap
-	err = c.cdc.UnmarshalBinaryBare(res, &atomicSwap)
+	resp, err := c.ABCIQuery(fmt.Sprintf("custom/%s/%s", msg.AtomicSwapRoute, "swaphash"), bz)
 	if err != nil {
 		return types.AtomicSwap{}, err
 	}
-
-	return atomicSwap, nil
+	var result types.AtomicSwap
+	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
+	if err != nil {
+		return types.AtomicSwap{}, err
+	}
+	return result, nil
 }
 
-func (c *HTTP) GetSwapByCreator(creatorAddr string, swapStatus string, offset int64, limit int64) ([]types.AtomicSwap, error) {
+func (c *HTTP) GetSwapByCreator(creatorAddr string, offset int64, limit int64) ([]types.HexData, error) {
 	addr, err := types.AccAddressFromBech32(creatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	status := types.NewSwapStatusFromString(swapStatus)
 	params := types.QuerySwapByCreatorParams{
 		Creator: addr,
-		Status:  status,
 		Limit:   limit,
 		Offset:  offset,
 	}
@@ -422,7 +419,7 @@ func (c *HTTP) GetSwapByCreator(creatorAddr string, swapStatus string, offset in
 	if err != nil {
 		return nil, err
 	}
-	var result []types.AtomicSwap
+	var result []types.HexData
 	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
 	if err != nil {
 		return nil, err
@@ -430,15 +427,13 @@ func (c *HTTP) GetSwapByCreator(creatorAddr string, swapStatus string, offset in
 	return result, nil
 }
 
-func (c *HTTP) GetSwapByRecipient(recipientAddr string, swapStatus string, offset int64, limit int64) ([]types.AtomicSwap, error) {
+func (c *HTTP) GetSwapByRecipient(recipientAddr string, offset int64, limit int64) ([]types.HexData, error) {
 	recipient, err := types.AccAddressFromBech32(recipientAddr)
 	if err != nil {
 		return nil, err
 	}
-	status := types.NewSwapStatusFromString(swapStatus)
 	params := types.QuerySwapByRecipientParams{
 		Recipient: recipient,
-		Status:    status,
 		Limit:     limit,
 		Offset:    offset,
 	}
@@ -452,7 +447,7 @@ func (c *HTTP) GetSwapByRecipient(recipientAddr string, swapStatus string, offse
 	if err != nil {
 		return nil, err
 	}
-	var result []types.AtomicSwap
+	var result []types.HexData
 	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
 	if err != nil {
 		return nil, err
