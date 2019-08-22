@@ -59,10 +59,10 @@ func TestTransProcess(t *testing.T) {
 	outAmount := ctypes.Coin{"BNB", 10000}
 	inAmountOtherChain := "10000:BNB"
 	heightSpan := int64(1000)
-	hashTimerLockTransfer, err := client.HashTimerLockedTransfer(testAccount2, recipientOtherChain, randomNumberHash, timestamp, outAmount, inAmountOtherChain, heightSpan, true, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+2))
+	hashTimerLockTransfer, err := client.HTLT(testAccount2, recipientOtherChain, randomNumberHash, timestamp, outAmount, inAmountOtherChain, heightSpan, true, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+2))
 	assert.NoError(t, err)
 	fmt.Printf("Hash timer lock transfer: %v \n", hashTimerLockTransfer)
-	claimHashTimerLockTransfer, err := client.ClaimHashTimerLockedTransfer(randomNumberHash, randomNumber, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+3))
+	claimHashTimerLockTransfer, err := client.ClaimHTLT(randomNumberHash, randomNumber, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+3))
 	assert.NoError(t, err)
 	fmt.Printf("Claim hash timer lock transfer: %v \n", claimHashTimerLockTransfer)
 
@@ -70,11 +70,11 @@ func TestTransProcess(t *testing.T) {
 	timestamp = int64(time.Now().Unix())
 	randomNumberHash = msg.CalculateRandomHash(randomNumber, timestamp)
 	heightSpan = int64(360)
-	hashTimerLockTransfer, err = client.HashTimerLockedTransfer(testAccount2, recipientOtherChain, randomNumberHash, timestamp, outAmount, inAmountOtherChain, heightSpan, true, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+4))
+	hashTimerLockTransfer, err = client.HTLT(testAccount2, recipientOtherChain, randomNumberHash, timestamp, outAmount, inAmountOtherChain, heightSpan, true, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+4))
 	assert.NoError(t, err)
 	fmt.Printf("Hash timer lock transfer: %v \n", hashTimerLockTransfer)
 	//client.SubscribeBlockHeightEvent()
-	refundHashTimerLockTransfer, err := client.RefundHashTimerLockedTransfer(randomNumberHash, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+5))
+	refundHashTimerLockTransfer, err := client.RefundHTLT(randomNumberHash, true, transaction.WithAcNumAndSequence(accn.Number, accn.Sequence+5))
 	fmt.Printf("Refund hash timer lock transfer: %v \n", refundHashTimerLockTransfer)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "is still not reached"))
