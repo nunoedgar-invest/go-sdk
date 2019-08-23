@@ -390,6 +390,12 @@ func (c *HTTP) GetSwapByHash(randomNumberHash types.HexData) (types.AtomicSwap, 
 	if err != nil {
 		return types.AtomicSwap{}, err
 	}
+	if !resp.Response.IsOK() {
+		return types.AtomicSwap{}, fmt.Errorf(resp.Response.Log)
+	}
+	if len(resp.Response.GetValue()) == 0 {
+		return types.AtomicSwap{}, fmt.Errorf("zero records")
+	}
 	var result types.AtomicSwap
 	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
 	if err != nil {
@@ -419,6 +425,12 @@ func (c *HTTP) GetSwapByCreator(creatorAddr string, offset int64, limit int64) (
 	if err != nil {
 		return nil, err
 	}
+	if !resp.Response.IsOK() {
+		return nil, fmt.Errorf(resp.Response.Log)
+	}
+	if len(resp.Response.GetValue()) == 0 {
+		return nil, fmt.Errorf("zero records")
+	}
 	var result []types.HexData
 	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
 	if err != nil {
@@ -446,6 +458,12 @@ func (c *HTTP) GetSwapByRecipient(recipientAddr string, offset int64, limit int6
 	resp, err := c.ABCIQuery(fmt.Sprintf("custom/%s/%s", msg.AtomicSwapRoute, "swaprecipient"), bz)
 	if err != nil {
 		return nil, err
+	}
+	if !resp.Response.IsOK() {
+		return nil, fmt.Errorf(resp.Response.Log)
+	}
+	if len(resp.Response.GetValue()) == 0 {
+		return nil, fmt.Errorf("zero records")
 	}
 	var result []types.HexData
 	err = c.cdc.UnmarshalJSON(resp.Response.GetValue(), &result)
